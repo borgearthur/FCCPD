@@ -1,0 +1,35 @@
+version: '3.8'
+
+services:
+  # Microsserviço de Usuários (Node.js) - Sem alterações
+  users-service:
+    build: ./servico-user
+    container_name: ms_users
+    networks:
+      - gateway-net
+
+  # Microsserviço de Pedidos (Python) - Sem alterações
+  orders-service:
+    build: ./servico-orders
+    container_name: ms_orders
+    networks:
+      - gateway-net
+
+  # Novo Gateway Python
+  gateway:
+    build: ./gateway
+    container_name: python_gateway
+    ports:
+      - "8080:80"  # Mapeia porta 8080 do PC para 80 do Python
+    environment:
+      - USERS_SERVICE_URL=http://users-service:3000
+      - ORDERS_SERVICE_URL=http://orders-service:5000
+    depends_on:
+      - users-service
+      - orders-service
+    networks:
+      - gateway-net
+
+networks:
+  gateway-net:
+    driver: bridge

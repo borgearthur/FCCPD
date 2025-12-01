@@ -1,0 +1,44 @@
+version: '3.8'
+
+services:
+  web:
+    build: ./app
+    container_name: desafio_web
+    ports:
+      - "5000:5000"
+    environment:
+      - REDIS_HOST=cache
+      - DB_HOST=db
+      - POSTGRES_DB=app_data
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass_secreta
+    depends_on:
+      - db
+      - cache
+    networks:
+      - minha_rede
+
+  db:
+    image: postgres:13-alpine
+    container_name: desafio_db
+    environment:
+      - POSTGRES_DB=app_data
+      - POSTGRES_USER=user
+      - POSTGRES_PASSWORD=pass_secreta
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+    networks:
+      - minha_rede
+
+  cache:
+    image: redis:alpine
+    container_name: desafio_cache
+    networks:
+      - minha_rede
+
+networks:
+  minha_rede:
+    driver: bridge
+
+volumes:
+  pg_data:
